@@ -533,14 +533,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameCamera: {fileID: 1414960685}
-  cameraOutputRT: {fileID: 8400000, guid: e7f3b714132b4a94799be97b3778c06e, type: 2}
-  movingMode: 1
-  particlesSpeed: 0
+  RTCamera: {fileID: 1674261047}
   particlesLayerName: ScreenParticles
-  rowParticlesCount: 70
-  columnParticlesCount: 35
-  particleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  particleScale: 0.025
+  columnsCount: 60
+  rowsCount: 60
+  particleMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  particleScale: 0.0165
+  particlesSpeed: 0
+  movingMode: 1
 --- !u!81 &1414960684
 AudioListener:
   m_ObjectHideFlags: 0
@@ -752,7 +752,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 8400000, guid: e7f3b714132b4a94799be97b3778c06e, type: 2}
+  m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
