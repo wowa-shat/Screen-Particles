@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class ConverterRT : MonoBehaviour
+public class ScreenParticles : MonoBehaviour
 {
     [Serializable]
-    public enum MovingMode { BlackHole, Wind }
+    public enum MovingMode { BlackHole, OnUnitSphereX100 }
 
     [Space(5)]
     public Camera gameCamera;
     public RenderTexture cameraOutputRT;
     public MovingMode movingMode = MovingMode.BlackHole;
+    [Range(-1,1)]
+    public float particlesSpeed;
 
     [Space(5)]
     [Header("Screen Particles")]
@@ -21,8 +23,7 @@ public class ConverterRT : MonoBehaviour
     public Mesh particleMesh;
     public float particleScale = 0.035f;
 
-    private List<GameObject> particlesList = new List<GameObject>();
-    private List<Vector3> targetsPosition = new List<Vector3>();
+    private List<ScreenParticle> particles = new List<ScreenParticle>();
     private bool isMoving = false;
 
     void Update()
@@ -45,46 +46,28 @@ public class ConverterRT : MonoBehaviour
                     Physics.Raycast(ray, out hitInfo);
                     Color clr = texture2D.GetPixel(x, y);
                     Color lightClr = Color.white * clr;
-                    particlesList.Add(CreateParticle("particle", lightClr, hitInfo.point));
+
+                    particles.Add(new ScreenParticle(CreateParticle("particle", lightClr, hitInfo.point), movingMode));
                 }
             }
 
             //on screen stay only particles
             gameCamera.clearFlags = CameraClearFlags.SolidColor;
             gameCamera.cullingMask = 1 << LayerMask.NameToLayer(particlesLayerName);
-        }
-        //start moving
-        if (Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            switch (movingMode)
-            {
-                case MovingMode.BlackHole:
-                    {
-                        isMoving = true;
-                        for (int i = 0; i < particlesList.Count; i++)
-                        {
-                            var rnd = new System.Random((int)Time.time);
-                            targetsPosition.Add(new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), particlesList[i].transform.position.z));
-                        }
-                    }
-                    break;
-                case MovingMode.Wind:
-                    {
-                        var rnd = new System.Random((int)Time.time);
-                        isMoving = true;
-                        for (int i = 0; i < particlesList.Count; i++)
-                        {
-                            targetsPosition.Add(new Vector3((float)(rnd.NextDouble() * (100 - 10) + 10), (float)(rnd.NextDouble() * (100 - 10) + 10), particlesList[i].transform.position.z));
-                        }
-                    }
-                    break;
-            }
+            isMoving = true;
         }
         if (isMoving)
         {
-            for (int i = 0; i < particlesList.Count; i++)
+            for (int i = 0; i < particles.Count; i++)
             {
-                particlesList[i].transform.position = Vector3.MoveTowards(particlesList[i].transform.position, targetsPosition[i], 0.004f);
+                if(particlesSpeed >= 0)
+                {
+                    particles[i].particle.transform.position = Vector3.MoveTowards(particles[i].particle.transform.position, particles[i].target, particlesSpeed / 100f);
+                }
+                else
+                {
+                    particles[i].particle.transform.position = Vector3.MoveTowards(particles[i].particle.transform.position, particles[i].originPos, -particlesSpeed / 100f);
+                }
             }
         }
     }
@@ -100,5 +83,37 @@ public class ConverterRT : MonoBehaviour
 
         particle.transform.position = position;
         return particle;
+    }
+
+    class ScreenParticle
+    {
+        public GameObject particle;
+        public Vector3 target;
+        public Vector3 originPos;
+
+        public ScreenParticle(GameObject particle, MovingMode movingMode)
+        {
+            this.particle = particle;
+
+            switch (movingMode)
+            {
+                case MovingMode.BlackHole:
+                    {
+                        var rnd = new System.Random((int)Time.time);
+                        this.target = new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), this.particle.transform.position.z);
+                    }
+                    break;
+                case MovingMode.OnUnitSphereX100:
+                    {
+                        Vector3 t = UnityEngine.Random.onUnitSphere * 100f;
+                        this.target = new Vector3(t.x, t.y, this.particle.transform.position.z);
+                    }
+                    break;
+                default:
+                    throw new Exception("Unknown MovingMode. Please add new mode to enum");
+            }
+
+            this.originPos = particle.transform.position;
+        }
     }
 }
