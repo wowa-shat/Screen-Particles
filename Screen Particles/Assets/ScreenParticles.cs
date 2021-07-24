@@ -6,7 +6,7 @@ using System;
 public class ScreenParticles : MonoBehaviour
 {
     [Serializable]
-    public enum MovingMode { BlackHole, OnUnitSphereX100 }
+    public enum MovingMode { BlackHole, UpRight, RandomDirection }
 
     [Space(5)]
     public Camera gameCamera;
@@ -37,6 +37,7 @@ public class ScreenParticles : MonoBehaviour
             texture2D.ReadPixels(new Rect(0, 0, cameraOutputRT.width, cameraOutputRT.height), 0, 0);
             texture2D.Apply();
 
+            var rnd = new System.Random((int)Time.time);
             for (int x = 0; x <= texture2D.width; x += texture2D.width / rowParticlesCount)
             {
                 for (int y = 0; y <= texture2D.height; y += texture2D.height / columnParticlesCount)
@@ -44,10 +45,9 @@ public class ScreenParticles : MonoBehaviour
                     Ray ray = gameCamera.ScreenPointToRay(new Vector3(x, y, 0));
                     RaycastHit hitInfo;
                     Physics.Raycast(ray, out hitInfo);
-                    Color clr = texture2D.GetPixel(x, y);
-                    Color lightClr = Color.white * clr;
+                    Color color = texture2D.GetPixel(x, y);
 
-                    particles.Add(new ScreenParticle(CreateParticle("particle", lightClr, hitInfo.point), movingMode));
+                    particles.Add(new ScreenParticle(CreateParticle("particle", color, hitInfo.point), movingMode, rnd));
                 }
             }
 
@@ -56,17 +56,19 @@ public class ScreenParticles : MonoBehaviour
             gameCamera.cullingMask = 1 << LayerMask.NameToLayer(particlesLayerName);
             isMoving = true;
         }
+
         if (isMoving)
         {
             for (int i = 0; i < particles.Count; i++)
             {
-                if(particlesSpeed >= 0)
+                var pos = particles[i].particle.transform.position;
+                if (particlesSpeed >= 0)
                 {
-                    particles[i].particle.transform.position = Vector3.MoveTowards(particles[i].particle.transform.position, particles[i].target, particlesSpeed / 100f);
+                    particles[i].particle.transform.position = Vector3.MoveTowards(pos, particles[i].target, particlesSpeed * Time.deltaTime);
                 }
                 else
                 {
-                    particles[i].particle.transform.position = Vector3.MoveTowards(particles[i].particle.transform.position, particles[i].originPos, -particlesSpeed / 100f);
+                    particles[i].particle.transform.position = Vector3.MoveTowards(pos, particles[i].originPos, -particlesSpeed * Time.deltaTime);
                 }
             }
         }
@@ -88,10 +90,10 @@ public class ScreenParticles : MonoBehaviour
     class ScreenParticle
     {
         public GameObject particle;
-        public Vector3 target;
         public Vector3 originPos;
+        public Vector3 target;
 
-        public ScreenParticle(GameObject particle, MovingMode movingMode)
+        public ScreenParticle(GameObject particle, MovingMode movingMode, System.Random rnd)
         {
             this.particle = particle;
 
@@ -99,11 +101,16 @@ public class ScreenParticles : MonoBehaviour
             {
                 case MovingMode.BlackHole:
                     {
-                        var rnd = new System.Random((int)Time.time);
-                        this.target = new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), this.particle.transform.position.z);
+                        var rand = new System.Random((int)Time.time);
+                        this.target = new Vector3((float)rand.NextDouble(), (float)rand.NextDouble(), this.particle.transform.position.z);
                     }
                     break;
-                case MovingMode.OnUnitSphereX100:
+                case MovingMode.UpRight:
+                    {
+                        this.target = new Vector3(rnd.Next(10, 100), rnd.Next(10, 100), this.particle.transform.position.z);
+                    }
+                    break;
+                case MovingMode.RandomDirection:
                     {
                         Vector3 t = UnityEngine.Random.onUnitSphere * 100f;
                         this.target = new Vector3(t.x, t.y, this.particle.transform.position.z);
