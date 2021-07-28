@@ -537,10 +537,11 @@ MonoBehaviour:
   particlesLayerName: ScreenParticles
   columnsCount: 60
   rowsCount: 60
-  particleMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  particleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   particleScale: 0.0165
   particlesSpeed: 0
-  movingMode: 1
+  movingMode: 0
+  blackHolePointObj: {fileID: 1960366432}
 --- !u!81 &1414960684
 AudioListener:
   m_ObjectHideFlags: 0
@@ -698,7 +699,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 1}
   m_LocalScale: {x: 2.5, y: 2.5, z: 0.01}
-  m_Children: []
+  m_Children:
+  - {fileID: 1960366433}
   m_Father: {fileID: 1674261048}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -775,5 +777,35 @@ Transform:
   m_Children:
   - {fileID: 1643345392}
   m_Father: {fileID: 1414960686}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1960366432
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1960366433}
+  m_Layer: 0
+  m_Name: BlackHolePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1960366433
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1960366432}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.229, y: 0.05, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1643345392}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
